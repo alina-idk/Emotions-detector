@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Detector de Emoții</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(to right, #ffe0f0, #fff0f5);
+    }
+  </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen font-sans text-gray-700 p-6">
+
+  <h1 class="text-3xl font-bold text-pink-600 mb-6">Detector de Emoții Live</h1>
+
+  <video id="video" autoplay muted class="rounded-xl shadow-lg border-4 border-pink-300 w-80 md:w-96 mb-4"></video>
+  <canvas id="canvas" class="hidden"></canvas>
+
+  <div class="bg-white rounded-2xl shadow-xl p-6 w-72 text-center border-2 border-pink-200">
+    <p class="text-lg font-semibold text-pink-700 mb-2">Emoție detectată:</p>
+    <div id="emotion" class="text-2xl font-bold text-pink-500">...</div>
+  </div>
+
+  <p class="mt-8 text-xs text-gray-500">Creat cu iubire și Python + FastAPI</p>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const emotionDiv = document.getElementById('emotion');
+
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => video.srcObject = stream)
+      .catch(err => console.error("Eroare cameră:", err));
+
+    setInterval(() => {
+      const context = canvas.getContext('2d');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      canvas.toBlob(blob => {
+        const formData = new FormData();
+        formData.append("file", blob, "frame.jpg");
+
+        fetch("http://localhost:8000/detect-emotion/", {
+          method: "POST",
+          body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+          emotionDiv.textContent = data.emotion;
+        })
+        .catch(err => {
+          emotionDiv.textContent = "Eroare";
+          console.error(err);
+        });
+      }, "image/jpeg");
+    }, 2000);
+  </script>
+</body>
+</html>
