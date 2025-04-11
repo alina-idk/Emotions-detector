@@ -24,7 +24,7 @@ This project is a web application that detects a person's emotions in real time 
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/emotion-detector.git
+   git clone https://github.com/alina-idk/Emotions-detector.git
    cd emotion-detector
 
    
